@@ -5,8 +5,8 @@
 
 ### Usage
 
-####single query:
+##### single query:
 `python3 scraper.py --query 'your query' --amount 1000 --outdir images`
 
-####multiple queries:
+##### multiple queries:
 `python3 scraper.py --query myquery 'your query' lastQuery --amount 1000 --outdir images`
