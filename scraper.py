@@ -65,7 +65,7 @@ class ImageDownloader:
             if file_name is not None:
                 file_size = len(file.content)
                 file_path = os.path.join(path, file_name)
-                pbar = tqdm(total=file_size, initial=0, unit='B', unit_scale=True, desc="downloading image from url: {}".format(url))
+                pbar = tqdm(total=file_size, mininterval=0.01, miniters=1, unit='B', unit_scale=True, desc="downloading image from url: {}".format(url))
                 with open(file_path, 'wb') as fd:
                     for chunk in file.iter_content(chunk_size=128):
                         fd.write(chunk)
