@@ -7,6 +7,9 @@ import shutil
 from datetime import datetime
 from bs4 import BeautifulSoup
 from tqdm import tqdm
+import cv2
+
+BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
 class DuckDuckGoImageSearch:
@@ -75,11 +78,11 @@ class ImageDownloader:
                 self.idx += 1
                 print("saved file as: {}".format(file_path))
 
-                return True
+                return file_path
             else:
-                return False
+                return None
         else:
-            return False
+            return None
 
     def reset_count(self):
         self.idx = 0
@@ -118,6 +121,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     img_downloader = ImageDownloader(args.outdir)
+    faceCascade = cv2.CascadeClassifier(os.path.join(BASE_PATH, 'haarcascade_frontalface_default.xml'))
     for query in args.query:
         ddgis = DuckDuckGoImageSearch(query, args.amount)
         img_downloader.reset_count()
@@ -125,6 +129,21 @@ if __name__ == '__main__':
             results = ddgis.get_results(s)
             for result in results:
                 img_url = result['image']
-                img_downloader.download(img_url, query)
+                path = img_downloader.download(img_url, query)
+
+                if path is not None:
+                    # check if it has a frontal face, if so keep the file, otherwise remove it
+                    im = cv2.imread(path)
+                    gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+                    faces = faceCascade.detectMultiScale(
+                        gray,
+                        scaleFactor=1.1,
+                        minNeighbors=5,
+                        minSize=(1, 1),
+                        flags=cv2.CASCADE_SCALE_IMAGE
+                    )
+                    if len(faces) == 0:
+                        print(f'found no face in {path}')
+                        os.remove(path)
 
 
